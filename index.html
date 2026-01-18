@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>施工项目管理系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- 内联SVG图标（无需CDN） -->
+    <style>
+        .icon { display: inline-block; width: 20px; height: 20px; vertical-align: middle; }
+        .icon-cloud { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23718096'%3E%3Cpath d='M19 16.9A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25'/%3E%3C/svg%3E") no-repeat center; }
+        .icon-images { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234299e1'%3E%3Cpath d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E") no-repeat center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>施工项目管理系统</h1>
+        
+        <!-- 新增切换按钮 -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button class="btn btn-success" style="margin-right: 10px; cursor: pointer;" onclick="window.location.href='index.html'">
+                新增项目
+            </button>
+            <button class="btn btn-primary" style="cursor: pointer;" onclick="window.location.href='view-projects.html'">
+                管理项目
+            </button>
+        </div>
+        
+        <form id="construction-form">
+            <!-- 基础信息行 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="username">用户名字</label>
+                    <input type="text" id="username" required placeholder="请输入用户名字">
+                </div>
+                <div class="form-group">
+                    <label for="user-phone">用户电话（选填）</label>
+                    <input type="tel" id="user-phone" placeholder="请输入用户的联系电话">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="work-type">工作类型</label>
+                    <div class="type-manage">
+                        <select id="work-type" required>
+                            <!-- 由JS动态加载 -->
+                        </select>
+                        <button type="button" id="type-add-btn" class="btn btn-success">添加类型</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="work-location">工作地点</label>
+                    <input type="text" id="work-location" required placeholder="请输入施工地点">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="complete-time">完成时间</label>
+                    <div class="time-group">
+                        <input type="date" id="complete-time" required class="time-input">
+                        <button type="button" id="reset-time-btn" class="reset-btn">复原为当前时间</button>
+                    </div>
+                </div>
+            </div>
+            <!-- 工作任务内容 -->
+            <div class="form-group">
+                <label for="work-content">工作任务内容</label>
+                <textarea id="work-content" rows="3" required placeholder="请详细描述施工任务内容"></textarea>
+            </div>
+            <!-- 施工材料设备添加（完整模块） -->
+            <div class="function-section">
+                <h3>施工材料设备添加</h3>
+                
+                <!-- 1. 线缆操作 -->
+                <div class="function-group">
+                    <select id="cable-operation">
+                        <option value="">选择线缆操作</option>
+                        <option value="新架设">新架设</option>
+                        <option value="拆装">拆装</option>
+                        <option value="拆除">拆除</option>
+                    </select>
+                    <select id="cable-spec">
+                        <option value="">线缆规格（平方）</option>
+                        <option value="16">16</option>
+                        <option value="25">25</option>
+                        <option value="35">35</option>
+                        <option value="50">50</option>
+                        <option value="70">70</option>
+                        <option value="95">95</option>
+                        <option value="120">120</option>
+                        <option value="185">185</option>
+                        <option value="240">240</option>
+                    </select>
+                    <select id="cable-multiple">
+                        <option value="1">×1</option>
+                        <option value="2" selected>×2</option>
+                        <option value="4">×4</option>
+                    </select>
+                    <input type="number" id="cable-length" min="1" placeholder="长度（米）">
+                    <button type="button" id="add-cable" class="btn btn-success">添加</button>
+                </div>
+                <!-- 2. 街码操作 -->
+                <div class="function-group">
+                    <select id="street-code-operation">
+                        <option value="">选择街码操作</option>
+                        <option value="新安装">新安装</option>
+                        <option value="拆装">拆装</option>
+                        <option value="拆除">拆除</option>
+                    </select>
+                    <select id="street-code-type">
+                        <option value="">街码类型</option>
+                        <option value="2位">2位</option>
+                        <option value="4位">4位</option>
+                    </select>
+                    <input type="number" id="street-code-count" min="1" placeholder="数量">
+                    <button type="button" id="add-street-code" class="btn btn-success">添加</button>
+                </div>
+                <!-- 3. 电杆操作 -->
+                <div class="function-group">
+                    <select id="pole-operation">
+                        <option value="">选择电杆操作</option>
+                        <option value="新立">新立</option>
+                        <option value="迁移">迁移</option>
+                        <option value="拆除">拆除</option>
+                        <option value="已现场报废">已现场报废</option>
+                    </select>
+                    <select id="pole-type">
+                        <option value="">电杆类型</option>
+                        <option value="6米电杆">6米电杆</option>
+                        <option value="7米电杆">7米电杆</option>
+                        <option value="8米电杆">8米电杆</option>
+                        <option value="9米电杆">9米电杆</option>
+                        <option value="10米电杆">10米电杆</option>
+                        <option value="12米电杆">12米电杆</option>
+                        <option value="13米电杆">13米电杆</option>
+                        <option value="15米电杆">15米电杆</option>
+                    </select>
+                    <input type="number" id="pole-count" min="1" placeholder="数量">
+                    <button type="button" id="add-pole" class="btn btn-success">添加</button>
+                </div>
+                <!-- 4. 抱箍操作 -->
+                <div class="function-group">
+                    <select id="hoop-operation">
+                        <option value="">选择抱箍操作</option>
+                        <option value="新安装">新安装</option>
+                        <option value="拆装">拆装</option>
+                        <option value="拆除">拆除</option>
+                    </select>
+                    <select id="hoop-type">
+                        <option value="">抱箍类型</option>
+                        <option value="凹凸抱箍">凹凸抱箍</option>
+                        <option value="单凸抱箍">单凸抱箍</option>
+                        <option value="单凹抱箍">单凹抱箍</option>
+                        <option value="双凸抱箍">双凸抱箍</option>
+                    </select>
+                    <input type="number" id="hoop-count" min="1" placeholder="数量">
+                    <button type="button" id="add-hoop" class="btn btn-success">添加</button>
+                </div>
+                <!-- 5. 拨接管操作 -->
+                <div class="function-group">
+                    <select id="connector-type">
+                        <option value="">拨接管类型</option>
+                        <option value="16拨接管">16拨接管</option>
+                        <option value="25拨接管">25拨接管</option>
+                        <option value="35拨接管">35拨接管</option>
+                        <option value="50拨接管">50拨接管</option>
+                        <option value="70拨接管">70拨接管</option>
+                        <option value="95拨接管">95拨接管</option>
+                        <option value="120拨接管">120拨接管</option>
+                        <option value="185拨接管">185拨接管</option>
+                        <option value="240拨接管">240拨接管</option>
+                    </select>
+                    <input type="number" id="connector-count" min="1" placeholder="数量">
+                    <button type="button" id="add-connector" class="btn btn-success">添加</button>
+                </div>
+                <!-- 6. 创通操作 -->
+                <div class="function-group">
+                    <label>创通</label>
+                    <div class="chuangtong-group">
+                        <input type="text" id="chuangtong-type1" placeholder="类型1（如16）">
+                        <input type="text" id="chuangtong-type2" placeholder="类型2（如35）">
+                        <input type="number" id="chuangtong-count" min="1" placeholder="数量">
+                    </div>
+                    <button type="button" id="add-chuangtong" class="btn btn-success">添加</button>
+                </div>
+                <!-- 7. 瓷碌操作 -->
+                <div class="function-group">
+                    <label>瓷碌</label>
+                    <input type="number" id="porcelain-count" min="1" placeholder="数量">
+                    <button type="button" id="add-porcelain" class="btn btn-success">添加</button>
+                </div>
+                <!-- 8. 拉线操作 -->
+                <div class="function-group">
+                    <select id="cable-wire-operation">
+                        <option value="">选择拉线操作</option>
+                        <option value="新安装">新安装</option>
+                        <option value="拆装">拆装</option>
+                        <option value="拆除">拆除</option>
+                    </select>
+                    <label>拉线</label>
+                    <input type="number" id="cable-count" min="1" placeholder="数量">
+                    <button type="button" id="add-cable-wire" class="btn btn-success">添加</button>
+                </div>
+            </div>
+            <!-- 施工前图片上传 -->
+            <div class="form-group">
+                <label>施工前图片（可批量上传）<span class="upload-count" id="before-count">(0)</span></label>
+                <div class="upload-area" id="before-upload-area">
+                    <div class="upload-icon"><span class="icon icon-cloud"></span></div>
+                    <div class="upload-text">点击或拖拽文件到此处上传</div>
+                    <input type="file" id="before-files" accept="image/*" multiple hidden>
+                </div>
+                <div class="file-list" id="before-file-list"></div>
+            </div>
+            <!-- 施工后图片上传 -->
+            <div class="form-group">
+                <label>施工后图片（可批量上传）<span class="upload-count after" id="after-count">(0)</span></label>
+                <div class="upload-area" id="after-upload-area">
+                    <div class="upload-icon"><span class="icon icon-cloud"></span></div>
+                    <div class="upload-text">点击或拖拽文件到此处上传</div>
+                    <input type="file" id="after-files" accept="image/*" multiple hidden>
+                </div>
+                <div class="file-list" id="after-file-list"></div>
+            </div>
+            <!-- 上传进度条 -->
+            <div class="upload-progress" id="upload-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div class="progress-text" id="progress-text">上传进度：0%</div>
+            </div>
+            <!-- 提交按钮 -->
+            <div class="form-group" style="text-align: center; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary">保存项目信息</button>
+            </div>
+        </form>
+        <!-- 待保存图片列表 -->
+        <div class="pending-list">
+            <h3><span class="icon icon-images"></span> 待保存图片列表</h3>
+            <div class="pending-grid" id="pending-grid">
+                <div style="grid-column: 1 / -1; text-align: center; color: #718096; padding: 20px;" id="empty-tip">
+                    暂无待保存图片，请上传施工前/后图片
+                </div>
+            </div>
+        </div>
+        <!-- 图片预览区域 -->
+        <div class="image-preview" id="image-preview"></div>
+    </div>
+    <!-- 废弃弹窗（隐藏） -->
+    <div class="preview-modal" id="preview-modal" style="display: none;">
+        <span class="modal-close" id="modal-close">×</span>
+        <div class="modal-content" id="modal-content"></div>
+    </div>
+    <!-- 可调节大小+拖拽平移的图片放大窗口 -->
+    <div class="resizable-modal" id="resizable-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 9999; overflow: hidden; min-width: 300px; min-height: 200px;">
+        <!-- 窗口标题栏（可拖拽） -->
+        <div class="modal-header" style="padding: 8px 15px; background: #4299e1; color: #fff; cursor: move; display: flex; justify-content: space-between; align-items: center;">
+            <span>图片预览</span>
+            <button class="modal-close-btn" id="modal-close-btn" style="background: transparent; border: none; color: #fff; font-size: 18px; cursor: pointer;">×</button>
+        </div>
+        <!-- 图片容器（可滚动+拖拽） -->
+        <div class="modal-body" style="padding: 0; height: calc(100% - 70px); overflow: hidden; cursor: default;">
+            <img id="resizable-img" style="width: 100%; height: 100%; object-fit: contain; transition: transform 0.1s ease; transform-origin: 0 0;" alt="预览图片">
+            <!-- 手机端触摸提示 -->
+            <div class="touch-tip" id="touch-tip">双指缩放 / 单指拖动</div>
+        </div>
+        <!-- 缩放控制按钮 -->
+        <div class="modal-controls" style="padding: 8px 15px; background: #f8f9fa; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; justify-content: center;">
+            <button id="zoom-out" class="btn" style="padding: 4px 12px; font-size: 0.9rem; background-color: #f5f5f5; color: #4a5568; border: 1px solid #e2e8f0; border-radius: 4px;">缩小</button>
+            <button id="zoom-reset" class="btn" style="padding: 4px 12px; font-size: 0.9rem; background-color: #4299e1; color: #fff; border: none; border-radius: 4px;">重置</button>
+            <button id="zoom-in" class="btn" style="padding: 4px 12px; font-size: 0.9rem; background-color: #4299e1; color: #fff; border: none; border-radius: 4px;">放大</button>
+        </div>
+    </div>
+    <!-- 遮罩层 -->
+    <div class="modal-overlay" id="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998;"></div>
+    <!-- 成功提示框 -->
+    <div class="success-alert" id="success-alert">保存成功！</div>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>

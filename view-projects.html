@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目信息管理 - 施工项目管理系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- 内联SVG图标 -->
+    <style>
+        .icon { display: inline-block; width: 20px; height: 20px; vertical-align: middle; }
+        .icon-search { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234299e1'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 0 0 9.5 3 6.5 6.5 0 0 0 3 9.5 6.5 6.5 0 0 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") no-repeat center; }
+        .icon-edit { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ed8936'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'/%3E%3C/svg%3E") no-repeat center; }
+        .icon-copy { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2348bb78'%3E%3Cpath d='M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z'/%3E%3C/svg%3E") no-repeat center; }
+        .icon-download { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338b2ac'%3E%3Cpath d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z'/%3E%3C/svg%3E") no-repeat center; }
+        .icon-delete { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e53e3e'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E") no-repeat center; }
+        .project-card { border-radius: 8px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 20px; }
+        .project-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; }
+        .project-title { font-size: 1.2rem; color: #2d3748; font-weight: 600; }
+        .project-actions { display: flex; gap: 10px; }
+        .action-btn { padding: 6px 12px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+        .project-info { margin-bottom: 20px; }
+        .info-item { margin-bottom: 8px; color: #4a5568; display: flex; }
+        .info-label { min-width: 100px; font-weight: 500; color: #2d3748; }
+        .info-content { flex: 1; white-space: pre-wrap; }
+        .image-section { margin: 20px 0; }
+        .image-section h4 { color: #2d3748; margin-bottom: 10px; font-size: 1rem; }
+        .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .image-item { border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; }
+        .image-item:hover { transform: scale(1.03); }
+        .image-item img { width: 100%; height: 100px; object-fit: cover; }
+        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
+        .search-input { flex: 1; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; }
+        .filter-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-select { padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; min-width: 120px; }
+        .edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: #fff; border-radius: 8px; width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; padding: 25px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; }
+        .modal-title { font-size: 1.2rem; color: #2d3748; font-weight: 600; }
+        .modal-close { color: #718096; cursor: pointer; font-size: 1.5rem; }
+        .btn-group { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        /* 自定义日期范围样式 */
+        #custom-date-range { display: none; margin-bottom: 20px; align-items: center; flex-wrap: wrap; gap: 10px; }
+        @media (max-width: 768px) {
+            .project-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .project-actions { width: 100%; justify-content: flex-end; }
+            .info-item { flex-direction: column; gap: 4px; }
+            .filter-group { flex-direction: column; }
+            .filter-select { width: 100%; }
+            #custom-date-range { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>项目信息管理</h1>
+        
+        <!-- 切换按钮 -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button class="btn btn-primary" style="margin-right: 10px; cursor: pointer;" onclick="window.location.href='index.html'">
+                新增项目
+            </button>
+            <button class="btn btn-success" style="cursor: pointer;" onclick="window.location.href='view-projects.html'">
+                管理项目
+            </button>
+        </div>
+        
+        <!-- 搜索和筛选区域 -->
+        <div class="search-bar">
+            <input type="text" class="search-input" id="search-input" placeholder="搜索项目（用户名、地点、类型）">
+            <button class="btn btn-primary" id="search-btn"><span class="icon icon-search"></span> 搜索</button>
+        </div>
+        
+        <div class="filter-group">
+            <select class="filter-select" id="type-filter">
+                <option value="">所有工作类型</option>
+                <!-- 动态加载类型 -->
+            </select>
+            <select class="filter-select" id="date-filter">
+                <option value="">所有时间</option>
+                <option value="today">今日</option>
+                <option value="week">本周</option>
+                <option value="month">本月</option>
+                <option value="year">本年</option>
+                <option value="lastYear">去年</option>
+                <option value="lastTwoYears">前年</option>
+                <option value="custom">自定义日期范围</option>
+            </select>
+            <button class="btn btn-success" id="refresh-btn">刷新列表</button>
+        </div>
+        
+        <!-- 自定义日期范围输入框（默认隐藏） -->
+        <div id="custom-date-range">
+            <label>开始日期：</label>
+            <input type="date" id="start-date" class="filter-select" style="width: auto; min-width: 150px;">
+            <label>结束日期：</label>
+            <input type="date" id="end-date" class="filter-select" style="width: auto; min-width: 150px;">
+            <button class="btn btn-primary" id="apply-date-filter">应用筛选</button>
+        </div>
+        
+        <!-- 项目列表区域 -->
+        <div id="project-list">
+            <div style="text-align: center; padding: 50px; color: #718096;">
+                请使用搜索或筛选查找项目，或点击刷新加载所有项目
+            </div>
+        </div>
+    </div>
+    
+    <!-- 编辑项目模态框 -->
+    <div class="edit-modal" id="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">编辑项目信息</div>
+                <div class="modal-close" id="modal-close-btn">×</div>
+            </div>
+            <form id="edit-form">
+                <input type="hidden" id="project-path"> <!-- 存储项目路径 -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-username">用户名字</label>
+                        <input type="text" id="edit-username" required placeholder="请输入用户名字">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-phone">用户电话（选填）</label>
+                        <input type="tel" id="edit-user-phone" placeholder="请输入用户的联系电话">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-work-type">工作类型</label>
+                        <select id="edit-work-type" required>
+                            <!-- 动态加载类型 -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-work-location">工作地点</label>
+                        <input type="text" id="edit-work-location" required placeholder="请输入施工地点">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-complete-time">完成时间</label>
+                        <input type="date" id="edit-complete-time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit-work-content">工作任务内容</label>
+                    <textarea id="edit-work-content" rows="6" required placeholder="请详细描述施工任务内容"></textarea>
+                </div>
+                
+                <!-- 图片预览和上传区域 -->
+                <div class="image-section">
+                    <h4>施工前图片（可重新上传）</h4>
+                    <div class="upload-area" id="edit-before-upload-area">
+                        <div class="upload-icon"><span class="icon icon-cloud"></span></div>
+                        <div class="upload-text">点击或拖拽文件到此处上传</div>
+                        <input type="file" id="edit-before-files" accept="image/*" multiple hidden>
+                    </div>
+                    <div class="image-grid" id="edit-before-images">
+                        <!-- 现有图片将动态加载 -->
+                    </div>
+                </div>
+                
+                <div class="image-section">
+                    <h4>施工后图片（可重新上传）</h4>
+                    <div class="upload-area" id="edit-after-upload-area">
+                        <div class="upload-icon"><span class="icon icon-cloud"></span></div>
+                        <div class="upload-text">点击或拖拽文件到此处上传</div>
+                        <input type="file" id="edit-after-files" accept="image/*" multiple hidden>
+                    </div>
+                    <div class="image-grid" id="edit-after-images">
+                        <!-- 现有图片将动态加载 -->
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success" id="save-edit-btn">保存修改</button>
+                    <button type="button" class="btn" style="background: #f5f5f5; color: #4a5568;" id="cancel-edit-btn">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 图片预览弹窗（复用之前的可调节窗口） -->
+    <div class="resizable-modal" id="view-resizable-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 9999; overflow: hidden; min-width: 300px; min-height: 200px;">
+        <div class="modal-header" style="padding: 8px 15px; background: #4299e1; color: #fff; cursor: move; display: flex; justify-content: space-between; align-items: center;">
+            <span>图片预览</span>
+            <button class="modal-close-btn" id="view-modal-close-btn" style="background: transparent; border: none; color: #fff; font-size: 18px; cursor: pointer;">×</button>
+        </div>
+        <div class="modal-body" style="padding: 0; height: calc(100% - 70px); overflow: hidden; cursor: default;">
+            <img id="view-resizable-img" style="width: 100%; height: 100%; object-fit: contain; transition: transform 0.1s ease; transform-origin: 0 0;" alt="预览图片">
+            <div class="touch-tip" id="view-touch-tip">双指缩放 / 单指拖动</div>
+        </div>
+        <div class="modal-controls" style="padding: 8px 15px; background: #f8f9fa; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; justify-content: center;">
+            <button id="view-zoom-out" class="btn" style="padding: 4px 12px; font-size: 0.9rem; background-color: #f5f5f5; color: #4a5568; border: 1px solid #e2e8f0; border-radius: 4px;">缩小</button>
+            <button id="view-zoom-reset" class="btn" style="padding: 4px 12px; font-size: 0.9rem; background-color: #4299e1; color: #fff; border: none; border-radius: 4px;">重置</button>
+            <button id="view-zoom-in" class="btn" style="padding: 4px 12px; font-size: 0.9rem; background-color: #4299e1; color: #fff; border: none; border-radius: 4px;">放大</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="view-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998;"></div>
+    
+    <script src="js/main.js"></script>
+    <script src="js/view-projects.js"></script>
+</body>
+</html>
